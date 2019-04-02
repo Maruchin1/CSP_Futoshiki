@@ -25,8 +25,12 @@ def search_solution(data):
     curr_var_idx = 0
     for idx in range(variables_arr.size):
         variable = np.copy(variables_arr[curr_var_idx])
-        coords_arr = variable[dimension:]
-        field_arr = variable[:dimension]
+        coords_arr = np.array(variable[dimension:])
+        field_arr = np.array(variable[:dimension])
+
+        not_checked_idx_arr = np.where(field_arr != -1)[0]
+        if not_checked_idx_arr.size > 0:
+            next_value = field_arr[not_checked_idx_arr[0]]
 
 
 if __name__ == '__main__':
