@@ -2,13 +2,14 @@ import numpy as np
 
 
 def load_data(file_name):
-    with open(file_name) as file:
+    with open("test_data/" + file_name) as file:
         dimension = int(file.readline())
         board_matrix = load_board_matrix(file, dimension)
-        variables_dict = make_variables(board_matrix)
-        constraint_arr = load_constraints_array(file)
+        def_field = make_def_field(dimension)
+        variables_dict = make_variables(board_matrix, def_field)
+        constraints_list = load_constraints_list(file)
 
-    return Data(dimension, board_matrix, constraint_arr, variables_dict)
+    return Data(dimension, board_matrix, constraints_list, variables_dict, def_field)
 
 
 def load_board_matrix(file, dimension):
@@ -26,27 +27,29 @@ def load_board_matrix(file, dimension):
     return board_matrix
 
 
-def make_variables(board_matrix):
-    zeros_positions_arr = np.where(board_matrix == 0)
-    print(zeros_positions_arr)
-    variables_count = zeros_positions_arr[0].size
-    dimension = board_matrix[0].size
+def make_def_field(dimension):
+    return [number for number in range(1, dimension + 1)]
 
-    # variables_arr = np.empty(shape=(variables_count, dimension + 2), dtype=int)
+
+def make_variables(board_matrix, def_field):
+    all_positions = np.where(board_matrix != -1)
+    variables_count = all_positions[0].size
 
     variables_dict = {}
     for i in range(variables_count):
-        field_arr = np.arange(1, dimension+1)
-        coord_tuple = (zeros_positions_arr[0][i], zeros_positions_arr[1][i])
-        # coord_arr = np.array((zeros_positions_arr[0][i], zeros_positions_arr[1][i]))
-        # variable = np.concatenate((field_arr, coord_arr))
-        # variables_arr[i] = variable
-        variables_dict[coord_tuple] = field_arr
+        row_num = all_positions[0][i]
+        col_num = all_positions[1][i]
+
+        val_in_pos = board_matrix[row_num, col_num]
+        field_list = def_field.copy() if val_in_pos == 0 else [val_in_pos]
+        pos_tuple = (row_num, col_num)
+
+        variables_dict[pos_tuple] = field_list
 
     return variables_dict
 
 
-def load_constraints_array(file):
+def load_constraints_list(file):
     constraints_list = []
     line = file.readline().replace("\n", "")
     while line != "":
@@ -54,8 +57,7 @@ def load_constraints_array(file):
         constraints_list.append(constraint)
         line = file.readline().replace("\n", "")
 
-    constraints_arr = np.array(constraints_list, dtype=((int, int), (int, int)))
-    return constraints_arr
+    return constraints_list
 
 
 def make_constraint(constraint_string):
@@ -64,15 +66,17 @@ def make_constraint(constraint_string):
     return constraint
 
 
+# todo rozszerzy to mapowanie dla większych planszy
 def fix_constraint(constraint_string):
-    return constraint_string.replace("1", "0").replace("2", "1").replace("3", "2").replace("4", "3") \
-        .replace("A", "0").replace("B", "1").replace("C", "2").replace("D", "3")
+    return constraint_string.replace("1", "0").replace("2", "1").replace("3", "2").replace("4", "3").replace("5", "4") \
+        .replace("A", "0").replace("B", "1").replace("C", "2").replace("D", "3").replace("E", "4")
 
 
 class Data:
 
-    def __init__(self, dimension, board_matrix, constraints_arr, variables_dict):
+    def __init__(self, dimension, board_matrix, constraints_list, variables_dict, def_field):
         self.dimension = dimension
         self.board_matrix = board_matrix
-        self.constraints_arr = constraints_arr
+        self.constraints_list = constraints_list
         self.variables_dict = variables_dict
+        self.def_field = def_field
