@@ -5,10 +5,10 @@ def load_data(file_name):
     with open(file_name) as file:
         dimension = int(file.readline())
         board_matrix = load_board_matrix(file, dimension)
-        variables_arr = make_variables(board_matrix)
+        variables_dict = make_variables(board_matrix)
         constraint_arr = load_constraints_array(file)
 
-    return Data(dimension, board_matrix, constraint_arr, variables_arr)
+    return Data(dimension, board_matrix, constraint_arr, variables_dict)
 
 
 def load_board_matrix(file, dimension):
@@ -31,14 +31,19 @@ def make_variables(board_matrix):
     print(zeros_positions_arr)
     variables_count = zeros_positions_arr[0].size
     dimension = board_matrix[0].size
-    variables_arr = np.empty(shape=(variables_count, dimension + 2), dtype=int)
+
+    # variables_arr = np.empty(shape=(variables_count, dimension + 2), dtype=int)
+
+    variables_dict = {}
     for i in range(variables_count):
         field_arr = np.arange(1, dimension+1)
-        coord_arr = np.array((zeros_positions_arr[0][i], zeros_positions_arr[1][i]))
-        variable = np.concatenate((field_arr, coord_arr))
-        variables_arr[i] = variable
+        coord_tuple = (zeros_positions_arr[0][i], zeros_positions_arr[1][i])
+        # coord_arr = np.array((zeros_positions_arr[0][i], zeros_positions_arr[1][i]))
+        # variable = np.concatenate((field_arr, coord_arr))
+        # variables_arr[i] = variable
+        variables_dict[coord_tuple] = field_arr
 
-    return variables_arr
+    return variables_dict
 
 
 def load_constraints_array(file):
@@ -66,8 +71,8 @@ def fix_constraint(constraint_string):
 
 class Data:
 
-    def __init__(self, dimension, board_matrix, constraints_arr, variables_arr):
+    def __init__(self, dimension, board_matrix, constraints_arr, variables_dict):
         self.dimension = dimension
         self.board_matrix = board_matrix
         self.constraints_arr = constraints_arr
-        self.variables_arr = variables_arr
+        self.variables_dict = variables_dict
