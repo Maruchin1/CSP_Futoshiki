@@ -1,40 +1,51 @@
 import numpy as np
+import copy
 from Data import load_data
 
-FILE_NAME = "futoshiki_5_0.txt"
+FILE_NAME = "futoshiki_4_0.txt"
 
 
-def search_solution():
-    # dimension = int(data.dimension)
-    # variables_dict = dict(data.variables_dict)
+def search_solutions():
+    solutions_list = []
+
     board_matrix = np.copy(data.board_matrix)
-    # constraints_list = list(data.constraints_list)
+    variables_dict = copy.deepcopy(data.variables_dict)
+
+    variables_count = len(variables_dict)
 
     print("main loop")
     curr_var_idx = 0
 
-    while curr_var_idx < len(variables_dict):
+    while curr_var_idx <= variables_count:
+        if curr_var_idx == variables_count:
+            solutions_list.append(np.copy(board_matrix))
+            curr_var_idx -= 1
+
         if curr_var_idx == -1:
-            print("NO CORRECT SOLUTION !!!!!!!!!!!")
-            return board_matrix
+            print("EXIT TREE !!!!!!!!!!!")
+            return solutions_list
 
         curr_var = list(variables_dict.keys())[curr_var_idx]
         print(curr_var)
 
-        corr_value = look_for_correct_value(curr_var, board_matrix)
+        corr_value = look_for_correct_value(curr_var, board_matrix, variables_dict)
 
         if corr_value is None:
-            variables_dict[curr_var] = def_field.copy()
-            board_matrix[curr_var] = 0
+            orig_field = orig_variables_dict[curr_var].copy()
+            variables_dict[curr_var] = orig_field
+
+            orig_value = orig_board_matrix[curr_var]
+            board_matrix[curr_var] = orig_value
+
             curr_var_idx -= 1
         else:
             board_matrix[curr_var[0]][curr_var[1]] = corr_value
             curr_var_idx += 1
 
-    return board_matrix
+    return solutions_list
 
 
-def look_for_correct_value(var_to_check, board_matrix):
+def look_for_correct_value(var_to_check, board_matrix, variables_dict):
     field = variables_dict[var_to_check]
 
     while len(field) > 0:
@@ -49,7 +60,6 @@ def look_for_correct_value(var_to_check, board_matrix):
 def check_constrains(var_to_check, value, board_matrix):
     rows_and_columns_correct = check_rows_and_columns(var_to_check, value, board_matrix)
     global_cons_correct = check_global_cons(var_to_check, value, board_matrix)
-    # global_cons_correct = True
 
     return rows_and_columns_correct and global_cons_correct
 
@@ -73,7 +83,7 @@ def check_rows_and_columns(var_to_check, value, board_matrix):
 
 
 def check_global_cons(var_to_check, value, board_matrix):
-    cons_with_var = [(x, y) for (x, y) in constraints_list if x == var_to_check or y == var_to_check]
+    cons_with_var = [(x, y) for (x, y) in orig_constrains_list if x == var_to_check or y == var_to_check]
     if len(cons_with_var) <= 0:
         return True
 
@@ -100,10 +110,10 @@ if __name__ == '__main__':
     print("variables_dict")
     print(data.variables_dict)
 
-    # board_matrix = np.copy(data.board_matrix)
-    def_field = list(data.def_field)
-    variables_dict = dict(data.variables_dict)
-    constraints_list = list(data.constraints_list)
+    orig_board_matrix = np.copy(data.board_matrix)
+    orig_variables_dict = copy.deepcopy(data.variables_dict)
+    orig_constrains_list = list(data.constraints_list)
+    orig_def_field = list(data.def_field)
 
-    solution = search_solution()
-    print(solution)
+    solutions = search_solutions()
+    print(solutions)
