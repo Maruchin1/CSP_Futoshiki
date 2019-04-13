@@ -1,48 +1,40 @@
 import numpy as np
 import copy
+import time
 from Data import load_data
 
-FILE_NAME = "futoshiki_4_0.txt"
+FILE_NAME = "test_futo_6_1.txt"
+back_count = 0
 
 
 def search_solutions():
+    start_time = time.time()
     solutions_list = []
 
     board_matrix = np.copy(data.board_matrix)
     variables_dict = copy.deepcopy(data.variables_dict)
-
     variables_count = len(variables_dict)
 
-    print("main loop")
+    print("\nSTART LOOP")
     curr_var_idx = 0
-
-    while curr_var_idx <= variables_count:
-        if curr_var_idx == variables_count:
-            solutions_list.append(np.copy(board_matrix))
-            curr_var_idx -= 1
-
+    while curr_var_idx < variables_count:
         if curr_var_idx == -1:
-            print("EXIT TREE !!!!!!!!!!!")
-            return solutions_list
+            notify_end_loop(start_time)
+            return
 
         curr_var = list(variables_dict.keys())[curr_var_idx]
-        print(curr_var)
-
         corr_value = look_for_correct_value(curr_var, board_matrix, variables_dict)
 
         if corr_value is None:
-            orig_field = orig_variables_dict[curr_var].copy()
-            variables_dict[curr_var] = orig_field
-
-            orig_value = orig_board_matrix[curr_var]
-            board_matrix[curr_var] = orig_value
-
+            variables_dict[curr_var] = orig_variables_dict[curr_var].copy()
+            board_matrix[curr_var] = orig_board_matrix[curr_var]
             curr_var_idx -= 1
         else:
-            board_matrix[curr_var[0]][curr_var[1]] = corr_value
-            curr_var_idx += 1
-
-    return solutions_list
+            board_matrix[curr_var] = corr_value
+            if curr_var != (orig_dimension-1, orig_dimension-1):
+                curr_var_idx += 1
+            else:
+                notify_solution_found(start_time, board_matrix)
 
 
 def look_for_correct_value(var_to_check, board_matrix, variables_dict):
@@ -100,8 +92,22 @@ def check_global_cons(var_to_check, value, board_matrix):
     return True
 
 
+def notify_solution_found(start_time, board_matrix):
+    print("\nFOUND SOLUTION")
+    print(board_matrix)
+    search_time = time.time() - start_time
+    print(f'search time = {search_time}')
+
+
+def notify_end_loop(start_time):
+    print("\nEND OF LOOP")
+    end_time = time.time() - start_time
+    print(f'end time = {end_time}')
+    return
+
+
 if __name__ == '__main__':
-    print("start")
+    print("LOADED DADA")
     data = load_data(FILE_NAME)
     print("data matrix")
     print(data.board_matrix)
@@ -110,10 +116,10 @@ if __name__ == '__main__':
     print("variables_dict")
     print(data.variables_dict)
 
+    orig_dimension = int(data.dimension)
     orig_board_matrix = np.copy(data.board_matrix)
     orig_variables_dict = copy.deepcopy(data.variables_dict)
     orig_constrains_list = list(data.constraints_list)
     orig_def_field = list(data.def_field)
 
-    solutions = search_solutions()
-    print(solutions)
+    search_solutions()

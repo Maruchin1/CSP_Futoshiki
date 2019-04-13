@@ -2,7 +2,7 @@ import numpy as np
 
 
 def load_data(file_name):
-    with open("test_data/" + file_name) as file:
+    with open("res_data/" + file_name) as file:
         dimension = int(file.readline())
         board_matrix = load_board_matrix(file, dimension)
         def_field = make_def_field(dimension)
@@ -68,8 +68,10 @@ def make_constraint(constraint_string):
 
 # todo rozszerzy to mapowanie dla większych planszy
 def fix_constraint(constraint_string):
-    return constraint_string.replace("1", "0").replace("2", "1").replace("3", "2").replace("4", "3").replace("5", "4") \
-        .replace("A", "0").replace("B", "1").replace("C", "2").replace("D", "3").replace("E", "4")
+    return constraint_string.replace("1", "0").replace("2", "1").replace("3", "2").replace("4", "3").replace("5", "4")\
+        .replace("6", "5").replace("7", "6").replace("8", "7").replace("9", "8") \
+        .replace("A", "0").replace("B", "1").replace("C", "2").replace("D", "3").replace("E", "4").replace("F", "5")\
+        .replace("G", "6").replace("H", "7").replace("I", "8")
 
 
 class Data:
