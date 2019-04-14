@@ -1,8 +1,11 @@
 import numpy as np
 
+TEST_DATA_DIR = "test_data/"
+RES_DATA_DIR = "res_data/"
+
 
 def load_data(file_name):
-    with open("res_data/" + file_name) as file:
+    with open(RES_DATA_DIR + file_name) as file:
         dimension = int(file.readline())
         board_matrix = load_board_matrix(file, dimension)
         def_field = make_def_field(dimension)
