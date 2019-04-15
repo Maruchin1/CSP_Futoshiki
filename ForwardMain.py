@@ -3,6 +3,8 @@ import copy
 import time
 from FutoData import load_data
 
+back_count = 0
+
 dicts_stack = []
 curr_var_idx = 0
 
@@ -25,16 +27,24 @@ def search_solutions():
         curr_var = vars_list[curr_var_idx]
         next_value = get_next_val(curr_var)
 
-        if curr_var == (0, 4) and next_value == 5:
-            print()
+        if curr_var == (4, 2) and next_value == 3:
+            x = 1
 
         if next_value is None:
             go_back(curr_var)
+            incr_back_count()
             continue
 
         is_val_correct = check_forward(curr_var, next_value)
         if is_val_correct:
             go_deeper(curr_var, next_value, start_time)
+        else:
+            incr_back_count()
+
+
+def incr_back_count():
+    global back_count
+    back_count += 1
 
 
 def go_back(curr_var):
@@ -92,28 +102,28 @@ def clear_global_cons_fields(var_to_check, value, new_dict):
     ref_cons_list = orig_cons_list
     smaller_vars, bigger_vars = get_smaller_and_bigger_vars(var_to_check)
 
-    smaller_not_empty = remove_smaller_values(value, smaller_vars, new_dict) if len(smaller_vars) > 0 else True
-    bigger_not_empty = remove_bigger_values(value, bigger_vars, new_dict) if len(bigger_vars) > 0 else True
+    if remove_smaller_values(value, smaller_vars, new_dict):
+        if remove_bigger_values(value, bigger_vars, new_dict):
+            return True
+    return False
 
-    return smaller_not_empty and bigger_not_empty
 
-
-def remove_bigger_values(value, vars, new_dict):
-    for var in vars:
-        field = new_dict[var]
-        field = [val for val in field if val > value]
-        if len(field) <= 0:
+def remove_bigger_values(value, bigger_vars, new_dict):
+    for var in bigger_vars:
+        new_field = [val for val in new_dict[var] if val > value]
+        new_dict[var] = new_field
+        if len(new_field) <= 0:
             return False
-        return True
+    return True
 
 
-def remove_smaller_values(value, vars, new_dict):
-    for var in vars:
-        field = new_dict[var]
-        field = [val for val in field if val < value]
-        if len(field) <= 0:
+def remove_smaller_values(value, smaller_vars, new_dict):
+    for var in smaller_vars:
+        new_field = [val for val in new_dict[var] if val < value]
+        new_dict[var] = new_field
+        if len(new_field) <= 0:
             return False
-        return True
+    return True
 
 
 def get_smaller_and_bigger_vars(var_to_check):
@@ -148,16 +158,20 @@ def get_vars_in_same_row_or_col(var_to_check):
 
 
 def notify_solution_found(start_time):
+    search_time = time.time() - start_time
+    global back_count
     print("\nFOUND SOLUTION")
     print(board_matrix)
-    search_time = time.time() - start_time
     print(f'search time = {search_time}')
+    print(f'back count = {back_count}')
 
 
 def notify_end_loop(start_time):
-    print("\nEND OF LOOP")
     end_time = time.time() - start_time
+    global back_count
+    print("\nEND OF LOOP")
     print(f'end time = {end_time}')
+    print(f'back count = {back_count}')
 
 
 def print_data():
@@ -171,7 +185,7 @@ def print_data():
 
 
 if __name__ == '__main__':
-    data = load_data("test_futo_6_1.txt")
+    data = load_data("test_futo_6_0.txt")
     print_data()
 
     orig_dimension = int(data.dimension)

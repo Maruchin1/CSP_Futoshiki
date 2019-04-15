@@ -4,6 +4,7 @@ import time
 from FutoData import load_data
 
 back_count = 0
+nodes_count = 0
 
 curr_var_idx = 0
 
@@ -25,11 +26,24 @@ def search_solutions():
 
         if next_value is None:
             go_back(curr_var)
+            incr_back_count()
             continue
 
         is_val_correct = check_constrains(curr_var, next_value)
         if is_val_correct:
             go_deeper(curr_var, next_value, start_time)
+        else:
+            incr_back_count()
+
+
+def incr_nodes_count():
+    global nodes_count
+    nodes_count += 1
+
+
+def incr_back_count():
+    global back_count
+    back_count += 1
 
 
 def go_back(curr_var):
@@ -100,16 +114,20 @@ def check_global_cons(var_to_check, value):
 
 
 def notify_solution_found(start_time):
+    search_time = time.time() - start_time
+    global back_count
     print("\nFOUND SOLUTION")
     print(board_matrix)
-    search_time = time.time() - start_time
     print(f'search time = {search_time}')
+    print(f'back count = {back_count}')
 
 
 def notify_end_loop(start_time):
-    print("\nEND OF LOOP")
     end_time = time.time() - start_time
+    global back_count
+    print("\nEND OF LOOP")
     print(f'end time = {end_time}')
+    print(f'back count = {back_count}')
 
 
 def print_data():
@@ -135,7 +153,7 @@ def number_of_cons(var):
 
 
 if __name__ == '__main__':
-    data = load_data("test_futo_6_1.txt")
+    data = load_data("test_futo_6_0.txt")
     print_data()
 
     orig_dimension = int(data.dimension)
