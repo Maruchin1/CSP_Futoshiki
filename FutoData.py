@@ -1,4 +1,5 @@
 import numpy as np
+from _collections import defaultdict
 
 TEST_DATA_DIR = "test_data/"
 RES_DATA_DIR = "res_data/"
