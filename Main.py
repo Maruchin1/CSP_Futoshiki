@@ -32,8 +32,8 @@ def print_data():
 
 
 if __name__ == '__main__':
-    data = load_data("test_futo_6_2.txt")
+    data = load_data("test_futo_6_0.txt")
 
-    algorithm = ForwardChecking.ForwardChecking(data)
-    # algorithm = BackTracking.BackTracking(data)
+    # algorithm = ForwardChecking.ForwardChecking(data)
+    algorithm = BackTracking.BackTracking(data)
     algorithm.search_solutions()

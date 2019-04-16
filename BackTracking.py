@@ -1,17 +1,15 @@
 import numpy as np
 import copy
 import time
-from Main import notify_end_loop, notify_solution_found
+import Main
 
 
 class BackTracking:
 
     def __init__(self, data):
+        self.data = data
         self.back_count = 0
-        self.orig_dimension = data.dimension
-        self.orig_board_matrix = data.board_matrix
-        self.orig_vars_dict = data.variables_dict
-        self.orig_cons_list = data.constraints_list
+        self.nodes_count = 0
         self.board_matrix = np.copy(data.board_matrix)
         self.vars_dict = copy.deepcopy(data.variables_dict)
         self.vars_list = list(self.vars_dict)
@@ -22,11 +20,12 @@ class BackTracking:
         print("\nSTART BACKTRACKING LOOP")
         while self.curr_var_idx < len(self.vars_list):
             if self.curr_var_idx == -1:
-                notify_end_loop(start_time, self.back_count)
+                Main.notify_end_loop(start_time, self.back_count, self.nodes_count)
                 return
 
             curr_var = self.vars_list[self.curr_var_idx]
             next_val = self.get_next_val(curr_var)
+            self.nodes_count += 1
 
             if next_val is None:
                 self.go_back(curr_var)
@@ -39,16 +38,16 @@ class BackTracking:
                 self.back_count += 1
 
     def go_back(self, curr_var):
-        self.vars_dict[curr_var] = self.orig_vars_dict[curr_var].copy()
-        self.board_matrix[curr_var] = self.orig_board_matrix[curr_var].copy()
+        self.vars_dict[curr_var] = self.data.variables_dict[curr_var].copy()
+        self.board_matrix[curr_var] = self.data.board_matrix[curr_var].copy()
         self.curr_var_idx -= 1
 
     def go_deeper(self, curr_var, corr_value, start_time):
         self.board_matrix[curr_var] = corr_value
-        if curr_var != (self.orig_dimension - 1, self.orig_dimension - 1):
+        if curr_var != (self.data.dimension - 1, self.data.dimension - 1):
             self.curr_var_idx += 1
         else:
-            notify_solution_found(start_time, self.board_matrix, self.back_count)
+            Main.notify_solution_found(start_time, self.board_matrix, self.back_count, self.nodes_count)
 
     def get_next_val(self, curr_var):
         field = self.vars_dict[curr_var]
@@ -78,7 +77,7 @@ class BackTracking:
         return True
 
     def check_global_cons(self, var_to_check, value):
-        cons_with_var = [(x, y) for (x, y) in self.orig_cons_list if x == var_to_check or y == var_to_check]
+        cons_with_var = [(x, y) for (x, y) in self.data.constraints_list if x == var_to_check or y == var_to_check]
         if len(cons_with_var) <= 0:
             return True
 
