@@ -2,7 +2,6 @@ import numpy as np
 import copy
 import time
 import Main
-from _collections import defaultdict
 
 
 class ForwardChecking:
@@ -10,6 +9,7 @@ class ForwardChecking:
     def __init__(self, data):
         self.data = data
         self.back_count = 0
+        self.nodes_count = 0
         self.board_matrix = np.copy(data.board_matrix)
         self.initial_vars_dict = copy.deepcopy(data.variables_dict)
         self.vars_dicts_stack = [self.initial_vars_dict]
@@ -21,11 +21,12 @@ class ForwardChecking:
         print("\nSTART FORWARD CHECKING LOOP")
         while self.curr_var_idx < len(self.vars_list):
             if self.curr_var_idx == -1:
-                Main.notify_end_loop(start_time, self.back_count)
+                Main.notify_end_loop(start_time, self.back_count, self.nodes_count)
                 return
 
             curr_var = self.vars_list[self.curr_var_idx]
             next_value = self.get_next_val(curr_var)
+            self.nodes_count += 1
 
             if next_value is None:
                 self.go_back(curr_var)
@@ -48,20 +49,22 @@ class ForwardChecking:
         if curr_var != (self.data.dimension - 1, self.data.dimension - 1):
             self.curr_var_idx += 1
         else:
-            Main.notify_solution_found(start_time, self.board_matrix, self.back_count)
+            Main.notify_solution_found(start_time, self.board_matrix, self.back_count, self.nodes_count)
             self.vars_dicts_stack.pop()
 
     def get_next_val(self, curr_var):
         curr_dict = self.vars_dicts_stack[len(self.vars_dicts_stack) - 1]
-        field = curr_dict[curr_var]
+        field = list(curr_dict[curr_var])
         # field_str = str(field)
         if len(field) <= 0:
             return None
-        return field.pop()
+        next_val = field.pop(0)
+        curr_dict[curr_var] = field
+        return next_val
 
     def check_forward(self, var_to_check, value):
         curr_dict = self.vars_dicts_stack[len(self.vars_dicts_stack) - 1]
-        new_dict = copy.deepcopy(curr_dict)
+        new_dict = copy.copy(curr_dict)
 
         if self.clear_rows_and_cols(var_to_check, value, new_dict):
             if self.clear_global_cons(var_to_check, value, new_dict):
@@ -72,9 +75,10 @@ class ForwardChecking:
     def clear_rows_and_cols(self, var_to_check, value, new_dict):
         vars_to_clear = self.get_vars_in_same_row_or_col(var_to_check)
         for var in vars_to_clear:
-            field = new_dict[var]
+            field = list(new_dict[var])
             if value in field:
                 field.remove(value)
+                new_dict[var] = field
             if len(field) <= 0:
                 return False
         return True
