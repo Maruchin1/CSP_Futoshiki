@@ -79,7 +79,6 @@ def fix_constraint(constraint_string):
 
 
 class Data:
-
     def __init__(self, dimension, board_matrix, constraints_list, variables_dict, def_field):
         self.dimension = dimension
         self.board_matrix = board_matrix

@@ -1,7 +1,7 @@
 import numpy as np
 import copy
 import time
-import Main
+from Futoshiki import FutoMain
 
 
 class BackTracking:
@@ -20,7 +20,7 @@ class BackTracking:
         print("\nSTART BACKTRACKING LOOP")
         while self.curr_var_idx < len(self.vars_list):
             if self.curr_var_idx == -1:
-                Main.notify_end_loop(start_time, self.back_count, self.nodes_count)
+                FutoMain.notify_end_loop(start_time, self.back_count, self.nodes_count)
                 return
 
             curr_var = self.vars_list[self.curr_var_idx]
@@ -38,7 +38,7 @@ class BackTracking:
                 self.back_count += 1
 
     def go_back(self, curr_var):
-        self.vars_dict[curr_var] = self.data.variables_dict[curr_var].copy()
+        self.vars_dict[curr_var] = list(self.data.variables_dict[curr_var])
         self.board_matrix[curr_var] = self.data.board_matrix[curr_var].copy()
         self.curr_var_idx -= 1
 
@@ -47,18 +47,21 @@ class BackTracking:
         if curr_var != (self.data.dimension - 1, self.data.dimension - 1):
             self.curr_var_idx += 1
         else:
-            Main.notify_solution_found(start_time, self.board_matrix, self.back_count, self.nodes_count)
+            FutoMain.notify_solution_found(start_time, self.board_matrix, self.back_count, self.nodes_count)
 
     def get_next_val(self, curr_var):
-        field = self.vars_dict[curr_var]
+        field = list(self.vars_dict[curr_var])
         if len(field) <= 0:
             return None
-        return field.pop(0)
+        next_val = field.pop(0)
+        self.vars_dict[curr_var] = field
+        return next_val
 
     def check_cons(self, var_to_check, value):
-        rows_and_cols_correct = self.check_rows_and_cols(var_to_check, value)
-        global_cons_correct = self.check_global_cons(var_to_check, value)
-        return rows_and_cols_correct and global_cons_correct
+        if self.check_rows_and_cols(var_to_check, value):
+            if self.check_global_cons(var_to_check, value):
+                return True
+        return False
 
     def check_rows_and_cols(self, var_to_check, value):
         row_num = var_to_check[0]

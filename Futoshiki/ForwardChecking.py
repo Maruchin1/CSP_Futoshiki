@@ -1,11 +1,10 @@
 import numpy as np
 import copy
 import time
-import Main
+from Futoshiki import FutoMain
 
 
 class ForwardChecking:
-
     def __init__(self, data):
         self.data = data
         self.back_count = 0
@@ -21,7 +20,7 @@ class ForwardChecking:
         print("\nSTART FORWARD CHECKING LOOP")
         while self.curr_var_idx < len(self.vars_list):
             if self.curr_var_idx == -1:
-                Main.notify_end_loop(start_time, self.back_count, self.nodes_count)
+                FutoMain.notify_end_loop(start_time, self.back_count, self.nodes_count)
                 return
 
             curr_var = self.vars_list[self.curr_var_idx]
@@ -49,13 +48,12 @@ class ForwardChecking:
         if curr_var != (self.data.dimension - 1, self.data.dimension - 1):
             self.curr_var_idx += 1
         else:
-            Main.notify_solution_found(start_time, self.board_matrix, self.back_count, self.nodes_count)
+            FutoMain.notify_solution_found(start_time, self.board_matrix, self.back_count, self.nodes_count)
             self.vars_dicts_stack.pop()
 
     def get_next_val(self, curr_var):
         curr_dict = self.vars_dicts_stack[len(self.vars_dicts_stack) - 1]
         field = list(curr_dict[curr_var])
-        # field_str = str(field)
         if len(field) <= 0:
             return None
         next_val = field.pop(0)
