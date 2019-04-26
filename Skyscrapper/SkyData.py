@@ -15,7 +15,7 @@ def load_data(file_name, reduce_fields_enabled):
         if reduce_fields_enabled:
             reduce_edges_fields(vars_dict, dim, cons_matrix)
 
-    return Data(dim, board_matrix, vars_dict, cons_matrix, def_field)
+    return Data(file_name, dim, board_matrix, vars_dict, cons_matrix, def_field)
 
 
 def make_vars_dict(board_matrix, def_field):
@@ -76,7 +76,8 @@ def col_vars(col_num, dim):
 
 
 class Data:
-    def __init__(self, dim, board_matrix, vars_dict, cons_matrix, def_field):
+    def __init__(self, file_name, dim, board_matrix, vars_dict, cons_matrix, def_field):
+        self.file_name = file_name
         self.dim = dim
         self.board_matrix = board_matrix
         self.vars_dict = vars_dict

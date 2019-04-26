@@ -18,7 +18,8 @@ class ForwardChecking:
 
     def search_solutions(self):
         start_time = time.time()
-        print("\nSTART FORWARD CHECKING LOOP")
+        print("FILE NAME: ", self.data.file_name)
+        print("START FORWARD CHECKING LOOP")
         while self.curr_var_idx < len(self.vars_list):
             if self.curr_var_idx == -1:
                 SkyMain.notify_end_loop(start_time, self.back_count, self.nodes_count)
@@ -27,14 +28,12 @@ class ForwardChecking:
             curr_var = self.vars_list[self.curr_var_idx]
             next_value = self._get_next_val(curr_var)
 
-            # if curr_var == (0, 2) and next_value == 4:
-            #     x = 1
-
             if next_value is None:
                 self._go_back(curr_var)
                 self.back_count += 1
                 continue
 
+            self.nodes_count += 1
             is_val_correct = self._check_forward(curr_var, next_value)
             if is_val_correct:
                 self._go_deeper(curr_var, next_value, start_time)
@@ -43,11 +42,10 @@ class ForwardChecking:
 
     def _go_back(self, curr_var):
         self.vars_dicts_stack.pop()
-        self.board_matrix[curr_var] = self.data.board_matrix[curr_var].copy()
+        self.board_matrix[curr_var] = 0
         self.curr_var_idx -= 1
 
-    def _go_deeper(self, curr_var, corr_value, start_time):
-        # self.board_matrix[curr_var] = corr_value
+    def _go_deeper(self, curr_var, start_time):
         if curr_var != (self.data.dim - 1, self.data.dim - 1):
             self.curr_var_idx += 1
         else:

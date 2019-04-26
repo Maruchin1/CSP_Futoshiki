@@ -17,6 +17,7 @@ class Backtracking:
 
     def search_solutions(self):
         start_time = time.time()
+        print("FILE NAME: ", self.data.file_name)
         print("START BACKTRACKING LOOP")
         while self.curr_var_idx < len(self.vars_list):
             if self.curr_var_idx == -1:
@@ -25,12 +26,12 @@ class Backtracking:
 
             curr_var = self.vars_list[self.curr_var_idx]
             next_val = self.get_next_val(curr_var)
-            self.nodes_count += 1
 
             if next_val is None:
                 self.go_back(curr_var)
                 continue
 
+            self.nodes_count += 1
             is_val_correct = self.check_cons(curr_var, next_val)
             if is_val_correct:
                 self.go_deeper(curr_var, start_time)
@@ -39,6 +40,7 @@ class Backtracking:
 
     def go_back(self, curr_var):
         self.vars_dict[curr_var] = list(self.data.def_field)
+        self.board_matrix[curr_var] = 0
         self.curr_var_idx -= 1
 
     def go_deeper(self, curr_var, start_time):
