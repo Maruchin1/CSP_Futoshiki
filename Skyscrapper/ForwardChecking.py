@@ -1,14 +1,16 @@
 import numpy as np
 import copy
 import time
-from Skyscrapper import SkyMain
+from Main import Output, Stats, notify_solution_found, notify_end_loop
 
 
 class ForwardChecking:
     def __init__(self, data):
         self.data = data
+        self.start_time = 0
         self.back_count = 0
         self.nodes_count = 0
+        self.output = Output(data.file_name, "Forward_Checking")
         self.board_matrix = np.copy(data.board_matrix)
         self.cons_matrix = np.copy(data.cons_matrix)
         self.initial_vars_dict = copy.deepcopy(data.vars_dict)
@@ -17,13 +19,13 @@ class ForwardChecking:
         self.curr_var_idx = 0
 
     def search_solutions(self):
-        start_time = time.time()
+        self.start_time = time.time()
         print("FILE NAME: ", self.data.file_name)
         print("START FORWARD CHECKING LOOP")
         while self.curr_var_idx < len(self.vars_list):
             if self.curr_var_idx == -1:
-                SkyMain.notify_end_loop(start_time, self.back_count, self.nodes_count)
-                return
+                self._loop_end()
+                return self.output
 
             curr_var = self.vars_list[self.curr_var_idx]
             next_value = self._get_next_val(curr_var)
@@ -36,20 +38,21 @@ class ForwardChecking:
             self.nodes_count += 1
             is_val_correct = self._check_forward(curr_var, next_value)
             if is_val_correct:
-                self._go_deeper(curr_var, next_value, start_time)
+                self._go_deeper(curr_var)
             else:
                 self.back_count += 1
+        return self.output
 
     def _go_back(self, curr_var):
         self.vars_dicts_stack.pop()
         self.board_matrix[curr_var] = 0
         self.curr_var_idx -= 1
 
-    def _go_deeper(self, curr_var, start_time):
+    def _go_deeper(self, curr_var):
         if curr_var != (self.data.dim - 1, self.data.dim - 1):
             self.curr_var_idx += 1
         else:
-            SkyMain.notify_solution_found(start_time, self.board_matrix, self.back_count, self.nodes_count)
+            self._solution_found()
             self.vars_dicts_stack.pop()
 
     def _get_next_val(self, curr_var):
@@ -132,3 +135,14 @@ class ForwardChecking:
                 visible_count += 1
                 biggest_val = curr_val
         return visible_count
+
+    def _solution_found(self):
+        search_time = time.time() - self.start_time
+        self.output.solution_matrix = np.copy(self.board_matrix)
+        self.output.solution_stats = Stats(float(search_time), int(self.back_count), int(self.nodes_count))
+        notify_solution_found(search_time, self.board_matrix, self.back_count, self.nodes_count)
+
+    def _loop_end(self):
+        end_time = time.time() - self.start_time
+        self.output.end_stats = Stats(float(end_time), int(self.back_count), int(self.nodes_count))
+        notify_end_loop(end_time, self.back_count, self.nodes_count)

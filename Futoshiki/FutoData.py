@@ -13,7 +13,7 @@ def load_data(file_name):
         variables_dict = make_variables(board_matrix, def_field)
         constraints_list = load_constraints_list(file)
 
-    return Data(dimension, board_matrix, constraints_list, variables_dict, def_field)
+    return Data(file_name, dimension, board_matrix, constraints_list, variables_dict, def_field)
 
 
 def load_board_matrix(file, dimension):
@@ -79,7 +79,8 @@ def fix_constraint(constraint_string):
 
 
 class Data:
-    def __init__(self, dimension, board_matrix, constraints_list, variables_dict, def_field):
+    def __init__(self, file_name, dimension, board_matrix, constraints_list, variables_dict, def_field):
+        self.file_name = file_name
         self.dimension = dimension
         self.board_matrix = board_matrix
         self.constraints_list = constraints_list

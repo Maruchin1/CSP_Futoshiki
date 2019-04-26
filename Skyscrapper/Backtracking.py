@@ -1,14 +1,16 @@
 import numpy as np
 import copy
 import time
-from Skyscrapper import SkyMain
+from Main import Output, Stats, notify_solution_found, notify_end_loop
 
 
 class Backtracking:
     def __init__(self, data):
         self.data = data
+        self.start_time = 0
         self.back_count = 0
         self.nodes_count = 0
+        self.output = Output(data.file_name, "Backtracking")
         self.board_matrix = np.copy(data.board_matrix)
         self.vars_dict = copy.deepcopy(data.vars_dict)
         self.vars_list = list(self.vars_dict)
@@ -16,13 +18,13 @@ class Backtracking:
         self.curr_var_idx = 0
 
     def search_solutions(self):
-        start_time = time.time()
+        self.start_time = time.time()
         print("FILE NAME: ", self.data.file_name)
         print("START BACKTRACKING LOOP")
         while self.curr_var_idx < len(self.vars_list):
             if self.curr_var_idx == -1:
-                SkyMain.notify_end_loop(start_time, self.back_count, self.nodes_count)
-                return
+                self._loop_end()
+                return self.output
 
             curr_var = self.vars_list[self.curr_var_idx]
             next_val = self.get_next_val(curr_var)
@@ -34,20 +36,21 @@ class Backtracking:
             self.nodes_count += 1
             is_val_correct = self.check_cons(curr_var, next_val)
             if is_val_correct:
-                self.go_deeper(curr_var, start_time)
+                self.go_deeper(curr_var)
             else:
                 self.back_count += 1
+        return self.output
 
     def go_back(self, curr_var):
         self.vars_dict[curr_var] = list(self.data.def_field)
         self.board_matrix[curr_var] = 0
         self.curr_var_idx -= 1
 
-    def go_deeper(self, curr_var, start_time):
+    def go_deeper(self, curr_var):
         if curr_var != (self.data.dim - 1, self.data.dim - 1):
             self.curr_var_idx += 1
         else:
-            SkyMain.notify_solution_found(start_time, self.board_matrix, self.back_count, self.nodes_count)
+            self._solution_found()
 
     def get_next_val(self, curr_var):
         field = list(self.vars_dict[curr_var])
@@ -121,3 +124,14 @@ class Backtracking:
                 visible_count += 1
                 biggest_val = curr_val
         return visible_count
+
+    def _solution_found(self):
+        search_time = time.time() - self.start_time
+        self.output.solution_matrix = np.copy(self.board_matrix)
+        self.output.solution_stats = Stats(float(search_time), int(self.back_count), int(self.nodes_count))
+        notify_solution_found(search_time, self.board_matrix, self.back_count, self.nodes_count)
+
+    def _loop_end(self):
+        end_time = time.time() - self.start_time
+        self.output.end_stats = Stats(float(end_time), int(self.back_count), int(self.nodes_count))
+        notify_end_loop(end_time, self.back_count, self.nodes_count)

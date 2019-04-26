@@ -1,55 +1,58 @@
 import numpy as np
 import copy
 import time
-from Futoshiki import FutoMain
+from Main import Output, Stats, notify_solution_found, notify_end_loop
 
 
 class BackTracking:
-
     def __init__(self, data):
         self.data = data
+        self.start_time = 0
         self.back_count = 0
         self.nodes_count = 0
+        self.output = Output(data.file_name, "Backtracking")
         self.board_matrix = np.copy(data.board_matrix)
         self.vars_dict = copy.deepcopy(data.variables_dict)
         self.vars_list = list(self.vars_dict)
         self.curr_var_idx = 0
 
     def search_solutions(self):
-        start_time = time.time()
-        print("\nSTART BACKTRACKING LOOP")
+        self.start_time = time.time()
+        print("FILE NAME: ", self.data.file_name)
+        print("START BACKTRACKING LOOP")
         while self.curr_var_idx < len(self.vars_list):
             if self.curr_var_idx == -1:
-                FutoMain.notify_end_loop(start_time, self.back_count, self.nodes_count)
+                self._loop_end()
                 return
 
             curr_var = self.vars_list[self.curr_var_idx]
-            next_val = self.get_next_val(curr_var)
+            next_val = self._get_next_val(curr_var)
             self.nodes_count += 1
 
             if next_val is None:
-                self.go_back(curr_var)
+                self._go_back(curr_var)
                 continue
 
-            is_val_correct = self.check_cons(curr_var, next_val)
+            is_val_correct = self._check_cons(curr_var, next_val)
             if is_val_correct:
-                self.go_deeper(curr_var, next_val, start_time)
+                self._go_deeper(curr_var, next_val)
             else:
                 self.back_count += 1
+        return self.output
 
-    def go_back(self, curr_var):
+    def _go_back(self, curr_var):
         self.vars_dict[curr_var] = list(self.data.variables_dict[curr_var])
         self.board_matrix[curr_var] = self.data.board_matrix[curr_var].copy()
         self.curr_var_idx -= 1
 
-    def go_deeper(self, curr_var, corr_value, start_time):
+    def _go_deeper(self, curr_var, corr_value):
         self.board_matrix[curr_var] = corr_value
         if curr_var != (self.data.dimension - 1, self.data.dimension - 1):
             self.curr_var_idx += 1
         else:
-            FutoMain.notify_solution_found(start_time, self.board_matrix, self.back_count, self.nodes_count)
+            self._solution_found()
 
-    def get_next_val(self, curr_var):
+    def _get_next_val(self, curr_var):
         field = list(self.vars_dict[curr_var])
         if len(field) <= 0:
             return None
@@ -57,13 +60,13 @@ class BackTracking:
         self.vars_dict[curr_var] = field
         return next_val
 
-    def check_cons(self, var_to_check, value):
-        if self.check_rows_and_cols(var_to_check, value):
-            if self.check_global_cons(var_to_check, value):
+    def _check_cons(self, var_to_check, value):
+        if self._check_rows_and_cols(var_to_check, value):
+            if self._check_global_cons(var_to_check, value):
                 return True
         return False
 
-    def check_rows_and_cols(self, var_to_check, value):
+    def _check_rows_and_cols(self, var_to_check, value):
         row_num = var_to_check[0]
         col_num = var_to_check[1]
 
@@ -79,7 +82,7 @@ class BackTracking:
 
         return True
 
-    def check_global_cons(self, var_to_check, value):
+    def _check_global_cons(self, var_to_check, value):
         cons_with_var = [(x, y) for (x, y) in self.data.constraints_list if x == var_to_check or y == var_to_check]
         if len(cons_with_var) <= 0:
             return True
@@ -95,3 +98,14 @@ class BackTracking:
                 return False
 
         return True
+
+    def _solution_found(self):
+        search_time = time.time() - self.start_time
+        self.output.solution_matrix = np.copy(self.board_matrix)
+        self.output.solution_stats = Stats(float(search_time), int(self.back_count), int(self.nodes_count))
+        notify_solution_found(search_time, self.board_matrix, self.back_count, self.nodes_count)
+
+    def _loop_end(self):
+        end_time = time.time() - self.start_time
+        self.output.end_stats = Stats(float(end_time), int(self.back_count), int(self.nodes_count))
+        notify_end_loop(end_time, self.back_count, self.nodes_count)
