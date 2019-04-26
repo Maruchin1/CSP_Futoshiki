@@ -21,13 +21,13 @@ def notify_end_loop(start_time, back_count, nodes_count):
     print(f'nodes count = {nodes_count}')
 
 
-def start_backtracking(file_name):
-    data = load_data(file_name)
+def start_backtracking(file_name, reduce_fields_enabled):
+    data = load_data(file_name, reduce_fields_enabled)
     Backtracking.Backtracking(data).search_solutions()
 
 
-def start_forward_checkin(file_name):
-    data = load_data(file_name)
+def start_forward_checkin(file_name, reduce_fields_enabled):
+    data = load_data(file_name, reduce_fields_enabled)
     ForwardChecking.ForwardChecking(data).search_solutions()
 
 

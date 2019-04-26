@@ -107,6 +107,10 @@ class Backtracking:
     def check_single_con(self, vals_list, con):
         if con == 0 or 0 in vals_list:
             return True
+        visible_count = self._visible_count(vals_list)
+        return visible_count == con
+
+    def _visible_count(self, vals_list):
         visible_count = 1
         biggest_val = vals_list[0]
         for i in range(1, len(vals_list)):
@@ -114,4 +118,4 @@ class Backtracking:
             if curr_val > biggest_val:
                 visible_count += 1
                 biggest_val = curr_val
-        return con == visible_count
+        return visible_count
