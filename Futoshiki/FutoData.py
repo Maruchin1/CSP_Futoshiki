@@ -12,8 +12,26 @@ def load_data(file_name):
         def_field = make_def_field(dimension)
         variables_dict = make_variables(board_matrix, def_field)
         constraints_list = load_constraints_list(file)
+        vars_cons_num_dict = make_vars_cons_num_dict(variables_dict, constraints_list)
 
-    return Data(file_name, dimension, board_matrix, constraints_list, variables_dict, def_field)
+    return Data(file_name, dimension, board_matrix, constraints_list, variables_dict, def_field, vars_cons_num_dict)
+
+
+def make_vars_cons_num_dict(vars_dict, const_list):
+    vars_cons_num_dict = {}
+    vars_list = list(vars_dict)
+    for var in vars_list:
+        cons_num = get_cons_num(var, const_list)
+        vars_cons_num_dict[var] = cons_num
+    return vars_cons_num_dict
+
+
+def get_cons_num(var, cons_list):
+    cons_num = 0
+    for con in cons_list:
+        if var in con:
+            cons_num += 1
+    return cons_num
 
 
 def load_board_matrix(file, dimension):
@@ -79,10 +97,11 @@ def fix_constraint(constraint_string):
 
 
 class Data:
-    def __init__(self, file_name, dimension, board_matrix, constraints_list, variables_dict, def_field):
+    def __init__(self, file_name, dimension, board_matrix, constraints_list, variables_dict, def_field, vars_cons_num_dict):
         self.file_name = file_name
         self.dimension = dimension
         self.board_matrix = board_matrix
         self.constraints_list = constraints_list
         self.variables_dict = variables_dict
         self.def_field = def_field
+        self.vars_cons_num_dict = vars_cons_num_dict

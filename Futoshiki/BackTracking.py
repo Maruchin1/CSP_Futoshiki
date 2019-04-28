@@ -14,7 +14,10 @@ class BackTracking:
         self.board_matrix = np.copy(data.board_matrix)
         self.vars_dict = copy.deepcopy(data.variables_dict)
         self.vars_list = list(self.vars_dict)
+        self.vars_cons_num_dict = copy.copy(data.vars_cons_num_dict)
         self.curr_var_idx = 0
+
+        self._heuristic_most_cons()
 
     def search_solutions(self):
         self.start_time = time.time()
@@ -113,3 +116,9 @@ class BackTracking:
         end_time = time.time() - self.start_time
         self.output.end_stats = Stats(float(end_time), int(self.back_count), int(self.nodes_count))
         notify_end_loop(end_time, self.back_count, self.nodes_count)
+
+    def _heuristic_most_cons(self):
+        self.vars_list.sort(key=self._cons_num, reverse=True)
+
+    def _cons_num(self, var):
+        return self.vars_cons_num_dict[var]

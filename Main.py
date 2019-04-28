@@ -108,109 +108,11 @@ def write_output_to_file(output):
 
 
 if __name__ == '__main__':
-    FUTO_DATA = "test_futo_7_0.txt"
+    FUTO_DATA = "test_futo_4_0.txt"
     # futo_forward_checking(FUTO_DATA, 10)
-    # futo_backtracking(FUTO_DATA, 10)
-
-    # futo_forward_checking("test_futo_4_0.txt", 10)
-    # futo_backtracking("test_futo_4_0.txt", 10)
-    #
-    # futo_forward_checking("test_futo_4_1.txt", 10)
-    # futo_backtracking("test_futo_4_1.txt", 10)
-    #
-    # futo_forward_checking("test_futo_4_2.txt", 10)
-    # futo_backtracking("test_futo_4_2.txt", 10)
-    #
-    # futo_forward_checking("test_futo_5_0.txt", 10)
-    # futo_backtracking("test_futo_5_0.txt", 10)
-    #
-    # futo_forward_checking("test_futo_5_1.txt", 10)
-    # futo_backtracking("test_futo_5_1.txt", 10)
-    #
-    # futo_forward_checking("test_futo_5_2.txt", 10)
-    # futo_backtracking("test_futo_5_2.txt", 10)
-    #
-    # futo_forward_checking("test_futo_6_0.txt", 10)
-    # futo_backtracking("test_futo_6_0.txt", 10)
-    #
-    # futo_forward_checking("test_futo_6_1.txt", 10)
-    # futo_backtracking("test_futo_6_1.txt", 10)
-    #
-    # futo_forward_checking("test_futo_6_2.txt", 10)
-    # futo_backtracking("test_futo_6_2.txt", 10)
-    #
-    # futo_forward_checking("test_futo_7_0.txt", 10)
-    # futo_backtracking("test_futo_7_0.txt", 10)
-    #
-    # futo_forward_checking("test_futo_7_1.txt", 10)
-    # futo_backtracking("test_futo_7_1.txt", 10)
-
-    futo_forward_checking("test_futo_7_2.txt", 1)
-    futo_backtracking("test_futo_7_2.txt", 1)
-
-    futo_forward_checking("test_futo_8_0.txt", 1)
-    futo_backtracking("test_futo_8_0.txt", 1)
-
-    futo_forward_checking("test_futo_8_1.txt", 1)
-    futo_backtracking("test_futo_8_1.txt", 1)
-
-    futo_forward_checking("test_futo_8_2.txt", 1)
-    futo_backtracking("test_futo_8_2.txt", 1)
-
-    futo_forward_checking("test_futo_9_0.txt", 1)
-    futo_backtracking("test_futo_9_0.txt", 1)
-
-    futo_forward_checking("test_futo_9_1.txt", 1)
-    futo_backtracking("test_futo_9_1.txt", 1)
-
-    futo_forward_checking("test_futo_9_2.txt", 1)
-    futo_backtracking("test_futo_9_2.txt", 1)
+    futo_backtracking(FUTO_DATA, 1)
 
     SKY_DATA = "test_sky_4_0.txt"
     # sky_forward_checking(SKY_DATA, 10, True)
     # sky_backtracking(SKY_DATA, 10, True)
 
-    # sky_forward_checking("test_sky_4_0.txt", 10, False)
-    # sky_backtracking("test_sky_4_0.txt", 10, False)
-    #
-    # sky_forward_checking("test_sky_4_1.txt", 10, False)
-    # sky_backtracking("test_sky_4_1.txt", 10, False)
-    #
-    # sky_forward_checking("test_sky_4_2.txt", 10, False)
-    # sky_backtracking("test_sky_4_2.txt", 10, False)
-    #
-    # sky_forward_checking("test_sky_4_3.txt", 10, False)
-    # sky_backtracking("test_sky_4_3.txt", 10, False)
-    #
-    # sky_forward_checking("test_sky_4_4.txt", 10, False)
-    # sky_backtracking("test_sky_4_4.txt", 10, False)
-    #
-    # sky_forward_checking("test_sky_5_0.txt", 10, True)
-    # sky_backtracking("test_sky_5_0.txt", 10, True)
-    #
-    # sky_forward_checking("test_sky_5_1.txt", 10, True)
-    # sky_backtracking("test_sky_5_1.txt", 10, True)
-    #
-    # sky_forward_checking("test_sky_5_2.txt", 10, True)
-    # sky_backtracking("test_sky_5_2.txt", 10, True)
-    #
-    # sky_forward_checking("test_sky_5_3.txt", 10, True)
-    # sky_backtracking("test_sky_5_3.txt", 10, True)
-    #
-    # sky_forward_checking("test_sky_5_4.txt", 10, True)
-    # sky_backtracking("test_sky_5_4.txt", 10, True)
-    #
-    # sky_forward_checking("test_sky_6_0.txt", 10, True)
-    # sky_backtracking("test_sky_6_0.txt", 10, True)
-    #
-    # sky_forward_checking("test_sky_6_1.txt", 10, True)
-    # sky_backtracking("test_sky_6_1.txt", 10, True)
-    #
-    # sky_forward_checking("test_sky_6_2.txt", 10, True)
-    # sky_backtracking("test_sky_6_2.txt", 10, True)
-
-    # sky_forward_checking("test_sky_6_3.txt", 10, True)
-    # sky_backtracking("test_sky_6_3.txt", 10, True)
-    #
-    # sky_forward_checking("test_sky_6_4.txt", 10, True)
-    # sky_backtracking("test_sky_6_4.txt", 10, True)

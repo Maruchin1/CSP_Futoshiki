@@ -15,6 +15,7 @@ class ForwardChecking:
         self.initial_vars_dict = copy.deepcopy(data.variables_dict)
         self.vars_dicts_stack = [self.initial_vars_dict]
         self.vars_list = list(self.initial_vars_dict)
+        self.vars_cons_num_dict = copy.copy(data.vars_cons_num_dict)
         self.curr_var_idx = 0
 
     def search_solutions(self):
@@ -90,11 +91,10 @@ class ForwardChecking:
 
     def _get_vars_in_same_row_or_col(self, var_to_check):
         linked_vars = []
-        (x, y) = var_to_check
-        for i in range(y + 1, self.data.dimension):
-            linked_vars.append((x, i))
-        for i in range(x + 1, self.data.dimension):
-            linked_vars.append((i, y))
+        for i in range(self.curr_var_idx, len(self.vars_list)):
+            var = self.vars_list[i]
+            if var != var_to_check and (var[0] == var_to_check[0] or var[1] == var_to_check[1]):
+                linked_vars.append(var)
         return linked_vars
 
     def _clear_global_cons(self, var_to_check, value, new_dict):
@@ -149,3 +149,9 @@ class ForwardChecking:
         end_time = time.time() - self.start_time
         self.output.end_stats = Stats(float(end_time), int(self.back_count), int(self.nodes_count))
         notify_end_loop(end_time, self.back_count, self.nodes_count)
+
+    def _heuristic_most_cons(self):
+        self.vars_list.sort(key=self._cons_num, reverse=True)
+
+    def _cons_num(self, var):
+        return self.vars_cons_num_dict[var]
