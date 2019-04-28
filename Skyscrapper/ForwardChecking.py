@@ -10,7 +10,7 @@ class ForwardChecking:
         self.start_time = 0
         self.back_count = 0
         self.nodes_count = 0
-        self.output = Output(data.file_name, "Forward_Checking")
+        self.output = Output(data.file_name, "ForwardChecking")
         self.board_matrix = np.copy(data.board_matrix)
         self.cons_matrix = np.copy(data.cons_matrix)
         self.initial_vars_dict = copy.deepcopy(data.vars_dict)
@@ -32,7 +32,6 @@ class ForwardChecking:
 
             if next_value is None:
                 self._go_back(curr_var)
-                self.back_count += 1
                 continue
 
             self.nodes_count += 1

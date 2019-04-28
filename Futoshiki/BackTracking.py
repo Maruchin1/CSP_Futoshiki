@@ -23,19 +23,21 @@ class BackTracking:
         while self.curr_var_idx < len(self.vars_list):
             if self.curr_var_idx == -1:
                 self._loop_end()
-                return
+                return self.output
 
             curr_var = self.vars_list[self.curr_var_idx]
             next_val = self._get_next_val(curr_var)
-            self.nodes_count += 1
 
             if next_val is None:
                 self._go_back(curr_var)
                 continue
 
+            self.nodes_count += 1
             is_val_correct = self._check_cons(curr_var, next_val)
             if is_val_correct:
-                self._go_deeper(curr_var, next_val)
+                found = self._go_deeper(curr_var, next_val)
+                if found:
+                    return self.output
             else:
                 self.back_count += 1
         return self.output
@@ -49,8 +51,10 @@ class BackTracking:
         self.board_matrix[curr_var] = corr_value
         if curr_var != (self.data.dimension - 1, self.data.dimension - 1):
             self.curr_var_idx += 1
+            return False
         else:
             self._solution_found()
+            return True
 
     def _get_next_val(self, curr_var):
         field = list(self.vars_dict[curr_var])

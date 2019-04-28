@@ -10,7 +10,7 @@ class ForwardChecking:
         self.start_time = 0
         self.back_count = 0
         self.nodes_count = 0
-        self.output = Output(data.file_name, "Forward_Checking")
+        self.output = Output(data.file_name, "ForwardChecking")
         self.board_matrix = np.copy(data.board_matrix)
         self.initial_vars_dict = copy.deepcopy(data.variables_dict)
         self.vars_dicts_stack = [self.initial_vars_dict]
@@ -28,16 +28,17 @@ class ForwardChecking:
 
             curr_var = self.vars_list[self.curr_var_idx]
             next_value = self._get_next_val(curr_var)
-            self.nodes_count += 1
 
             if next_value is None:
                 self._go_back(curr_var)
-                self.back_count += 1
                 continue
 
+            self.nodes_count += 1
             is_val_correct = self._check_forward(curr_var, next_value)
             if is_val_correct:
-                self._go_deeper(curr_var, next_value)
+                found = self._go_deeper(curr_var, next_value)
+                if found:
+                    return self.output
             else:
                 self.back_count += 1
         return self.output
@@ -51,9 +52,11 @@ class ForwardChecking:
         self.board_matrix[curr_var] = corr_value
         if curr_var != (self.data.dimension - 1, self.data.dimension - 1):
             self.curr_var_idx += 1
+            return False
         else:
             self._solution_found()
             self.vars_dicts_stack.pop()
+            return True
 
     def _get_next_val(self, curr_var):
         curr_dict = self.vars_dicts_stack[len(self.vars_dicts_stack) - 1]
@@ -87,10 +90,11 @@ class ForwardChecking:
 
     def _get_vars_in_same_row_or_col(self, var_to_check):
         linked_vars = []
-        for i in range(self.curr_var_idx, len(self.vars_list)):
-            var = self.vars_list[i]
-            if var != var_to_check and (var[0] == var_to_check[0] or var[1] == var_to_check[1]):
-                linked_vars.append(var)
+        (x, y) = var_to_check
+        for i in range(y + 1, self.data.dimension):
+            linked_vars.append((x, i))
+        for i in range(x + 1, self.data.dimension):
+            linked_vars.append((i, y))
         return linked_vars
 
     def _clear_global_cons(self, var_to_check, value, new_dict):
@@ -105,6 +109,7 @@ class ForwardChecking:
         second_poss_linked_var = (var_to_check[0] + 1, var_to_check[1])
         smaller_vars = []
         bigger_vars = []
+
         for (x, y) in self.data.constraints_list:
             if x == var_to_check:
                 if y == first_poss_linked_var:
