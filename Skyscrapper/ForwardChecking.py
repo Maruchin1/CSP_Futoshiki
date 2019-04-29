@@ -2,6 +2,7 @@ import numpy as np
 import copy
 import time
 from Main import Output, Stats, notify_solution_found, notify_end_loop
+import random
 
 
 class ForwardChecking:
@@ -16,7 +17,11 @@ class ForwardChecking:
         self.initial_vars_dict = copy.deepcopy(data.vars_dict)
         self.vars_dicts_stack = [self.initial_vars_dict]
         self.vars_list = list(self.initial_vars_dict)
+        # self.cons_list = data.cons_list
         self.curr_var_idx = 0
+
+        # self._heuristic_most_cons()
+        # self._heuristic_smallest_field()
 
     def search_solutions(self):
         self.start_time = time.time()
@@ -48,7 +53,7 @@ class ForwardChecking:
         self.curr_var_idx -= 1
 
     def _go_deeper(self, curr_var):
-        if curr_var != (self.data.dim - 1, self.data.dim - 1):
+        if curr_var != self.vars_list[len(self.vars_list) - 1]:
             self.curr_var_idx += 1
         else:
             self._solution_found()
@@ -59,7 +64,9 @@ class ForwardChecking:
         field = list(curr_dict[curr_var])
         if len(field) <= 0:
             return None
-        next_val = field.pop(0)
+        # next_val = field.pop(0)
+        next_val = field.pop(len(field) - 1)
+        # next_val = field.pop(random.randint(0, len(field) - 1))
         curr_dict[curr_var] = field
         return next_val
 
@@ -145,3 +152,28 @@ class ForwardChecking:
         end_time = time.time() - self.start_time
         self.output.end_stats = Stats(float(end_time), int(self.back_count), int(self.nodes_count))
         notify_end_loop(end_time, self.back_count, self.nodes_count)
+
+    def _heuristic_most_cons(self):
+        print("HEURISTIC MOST CONS")
+        self.vars_list.sort(key=self._cons_num, reverse=True)
+
+    def _cons_num(self, var):
+        row_num, col_num = var
+        cons_num = 0
+        if self.board_matrix[0][col_num] > 0:
+            cons_num += 1
+        if self.board_matrix[1][col_num] > 0:
+            cons_num += 1
+        if self.board_matrix[2][row_num] > 0:
+            cons_num += 1
+        if self.board_matrix[3][row_num] > 0:
+            cons_num += 1
+        return cons_num
+
+    def _heuristic_smallest_field(self):
+        print("HEURISTIC SMALLEST FIELD")
+        self.vars_list.sort(key=self._field_size)
+
+    def _field_size(self, var):
+        field = self.initial_vars_dict[var]
+        return len(field)

@@ -76,7 +76,7 @@ def make_total_output(output_list):
     end_stats_list = [o.end_stats for o in output_list]
     total_output = output_list[0]
     total_output.solution_stats = make_total_stats(solution_stats_list)
-    # total_output.end_stats = make_total_stats(end_stats_list)
+    total_output.end_stats = make_total_stats(end_stats_list)
     return total_output
 
 
@@ -85,9 +85,10 @@ def make_total_stats(stats_list):
     back_count_list = []
     nodes_count_list = []
     for stats in stats_list:
-        time_list.append(stats.time)
-        back_count_list.append(stats.back_count)
-        nodes_count_list.append(stats.nodes_count)
+        if stats is not None:
+            time_list.append(stats.time)
+            back_count_list.append(stats.back_count)
+            nodes_count_list.append(stats.nodes_count)
     stats = Stats(time_list, back_count_list, nodes_count_list)
     return stats
 
@@ -103,16 +104,47 @@ def write_output_to_file(output):
         file.write("\n" + str(output.solution_matrix))
         file.write("\n" + str(output.solution_stats))
         file.write("\nEnd")
-        # file.write("\n" + str(output.end_stats))
+        file.write("\n" + str(output.end_stats))
         file.close()
 
 
 if __name__ == '__main__':
-    FUTO_DATA = "test_futo_4_0.txt"
-    # futo_forward_checking(FUTO_DATA, 10)
-    futo_backtracking(FUTO_DATA, 1)
+    FUTO_DATA = "test_futo_6_0.txt"
+    # futo_forward_checking(FUTO_DATA, 1)
+    # futo_backtracking(FUTO_DATA, 1)
+
+    futo_forward_checking("test_futo_4_0.txt", 10)
+    futo_forward_checking("test_futo_4_1.txt", 10)
+    futo_forward_checking("test_futo_4_2.txt", 10)
+    futo_forward_checking("test_futo_5_0.txt", 10)
+    futo_forward_checking("test_futo_5_1.txt", 10)
+    futo_forward_checking("test_futo_5_2.txt", 10)
+    futo_forward_checking("test_futo_6_0.txt", 10)
+    futo_forward_checking("test_futo_6_1.txt", 10)
+    futo_forward_checking("test_futo_6_2.txt", 10)
+
+    # futo_backtracking("test_futo_4_0.txt", 10)
+    # futo_backtracking("test_futo_4_1.txt", 10)
+    # futo_backtracking("test_futo_4_2.txt", 10)
+    # futo_backtracking("test_futo_5_0.txt", 10)
+    # futo_backtracking("test_futo_5_1.txt", 10)
+    # futo_backtracking("test_futo_5_2.txt", 10)
+    # futo_backtracking("test_futo_6_0.txt", 10)
+    # futo_backtracking("test_futo_6_1.txt", 10)
+    # futo_backtracking("test_futo_6_2.txt", 10)
 
     SKY_DATA = "test_sky_4_0.txt"
-    # sky_forward_checking(SKY_DATA, 10, True)
+    # sky_forward_checking(SKY_DATA, 1, True)
     # sky_backtracking(SKY_DATA, 10, True)
+
+    # sky_forward_checking("test_sky_4_0.txt", 10, True)
+    # sky_forward_checking("test_sky_4_1.txt", 10, True)
+    # sky_forward_checking("test_sky_4_2.txt", 10, True)
+    # sky_forward_checking("test_sky_4_3.txt", 10, True)
+    # sky_forward_checking("test_sky_4_4.txt", 10, True)
+    # sky_forward_checking("test_sky_5_0.txt", 10, True)
+    # sky_forward_checking("test_sky_5_1.txt", 10, True)
+    # sky_forward_checking("test_sky_5_2.txt", 10, True)
+    # sky_forward_checking("test_sky_5_3.txt", 10, True)
+    # sky_forward_checking("test_sky_5_4.txt", 10, True)
 

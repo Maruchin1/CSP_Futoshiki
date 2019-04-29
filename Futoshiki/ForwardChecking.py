@@ -2,6 +2,7 @@ import numpy as np
 import copy
 import time
 from Main import Output, Stats, notify_solution_found, notify_end_loop
+import random
 
 
 class ForwardChecking:
@@ -15,8 +16,12 @@ class ForwardChecking:
         self.initial_vars_dict = copy.deepcopy(data.variables_dict)
         self.vars_dicts_stack = [self.initial_vars_dict]
         self.vars_list = list(self.initial_vars_dict)
-        self.vars_cons_num_dict = copy.copy(data.vars_cons_num_dict)
+        self.cons_list = data.constraints_list
         self.curr_var_idx = 0
+
+        # self._heuristic_most_cons()
+        # self._heuristic_smallest_field()
+        self.values_count_dict = {}
 
     def search_solutions(self):
         self.start_time = time.time()
@@ -38,8 +43,8 @@ class ForwardChecking:
             is_val_correct = self._check_forward(curr_var, next_value)
             if is_val_correct:
                 found = self._go_deeper(curr_var, next_value)
-                if found:
-                    return self.output
+                # if found:
+                #     return self.output
             else:
                 self.back_count += 1
         return self.output
@@ -51,7 +56,7 @@ class ForwardChecking:
 
     def _go_deeper(self, curr_var, corr_value):
         self.board_matrix[curr_var] = corr_value
-        if curr_var != (self.data.dimension - 1, self.data.dimension - 1):
+        if curr_var != self.vars_list[len(self.vars_list) - 1]:
             self.curr_var_idx += 1
             return False
         else:
@@ -64,7 +69,9 @@ class ForwardChecking:
         field = list(curr_dict[curr_var])
         if len(field) <= 0:
             return None
-        next_val = field.pop(0)
+        # next_val = field.pop(0)
+        next_val = field.pop(len(field) - 1)
+        # next_val = field.pop(random.randint(0, len(field) - 1))
         curr_dict[curr_var] = field
         return next_val
 
@@ -98,45 +105,39 @@ class ForwardChecking:
         return linked_vars
 
     def _clear_global_cons(self, var_to_check, value, new_dict):
-        smaller_vars, bigger_vars = self._get_smaller_and_bigger_vars(var_to_check)
-        if self._remove_smaller_values(value, smaller_vars, new_dict):
-            if self._remove_bigger_values(value, bigger_vars, new_dict):
-                return True
-        return False
+        cons_with_var = [(x, y) for (x, y) in self.cons_list if x == var_to_check or y == var_to_check]
+        if len(cons_with_var) <= 0:
+            return True
 
-    def _get_smaller_and_bigger_vars(self, var_to_check):
-        first_poss_linked_var = (var_to_check[0], var_to_check[1] + 1)
-        second_poss_linked_var = (var_to_check[0] + 1, var_to_check[1])
-        smaller_vars = []
-        bigger_vars = []
-
-        for (x, y) in self.data.constraints_list:
-            if x == var_to_check:
-                if y == first_poss_linked_var:
-                    bigger_vars.append(first_poss_linked_var)
-                elif y == second_poss_linked_var:
-                    bigger_vars.append(second_poss_linked_var)
-            elif y == var_to_check:
-                if x == first_poss_linked_var:
-                    smaller_vars.append(first_poss_linked_var)
-                elif x == second_poss_linked_var:
-                    smaller_vars.append(second_poss_linked_var)
-        return smaller_vars, bigger_vars
-
-    def _remove_bigger_values(self, value, bigger_vars, new_dict):
-        for var in bigger_vars:
-            new_field = [val for val in new_dict[var] if val > value]
-            new_dict[var] = new_field
-            if len(new_field) <= 0:
-                return False
+        for (first_var, second_var) in cons_with_var:
+            if first_var == var_to_check:
+                if self._is_var_forward(second_var):
+                    not_empty = self._remove_smaller_values(second_var, value, new_dict)
+                    if not not_empty:
+                        return False
+            elif second_var == var_to_check:
+                if self._is_var_forward(first_var):
+                    not_empty = self._remove_bigger_values(first_var, value, new_dict)
+                    if not not_empty:
+                        return False
         return True
 
-    def _remove_smaller_values(self, value, smaller_vars, new_dict):
-        for var in smaller_vars:
-            new_field = [val for val in new_dict[var] if val < value]
-            new_dict[var] = new_field
-            if len(new_field) <= 0:
-                return False
+    def _is_var_forward(self, poss_forward_var):
+        poss_forward_var_index = self.vars_list.index(poss_forward_var)
+        return poss_forward_var_index > self.curr_var_idx
+
+    def _remove_bigger_values(self, var, value, new_dict):
+        new_field = [val for val in new_dict[var] if val < value]
+        new_dict[var] = new_field
+        if len(new_field) <= 0:
+            return False
+        return True
+
+    def _remove_smaller_values(self, var, value, new_dict):
+        new_field = [val for val in new_dict[var] if val > value]
+        new_dict[var] = new_field
+        if len(new_field) <= 0:
+            return False
         return True
 
     def _solution_found(self):
@@ -151,7 +152,20 @@ class ForwardChecking:
         notify_end_loop(end_time, self.back_count, self.nodes_count)
 
     def _heuristic_most_cons(self):
+        print("HEURISTIC MOST CONS")
         self.vars_list.sort(key=self._cons_num, reverse=True)
 
     def _cons_num(self, var):
-        return self.vars_cons_num_dict[var]
+        cons_num = 0
+        for con in self.cons_list:
+            if var in con:
+                cons_num += 1
+        return cons_num
+
+    def _heuristic_smallest_field(self):
+        print("HEURISTIC SMALLEST FIELD")
+        self.vars_list.sort(key=self._field_size)
+
+    def _field_size(self, var):
+        field = self.initial_vars_dict[var]
+        return len(field)

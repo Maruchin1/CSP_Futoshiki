@@ -14,10 +14,11 @@ class BackTracking:
         self.board_matrix = np.copy(data.board_matrix)
         self.vars_dict = copy.deepcopy(data.variables_dict)
         self.vars_list = list(self.vars_dict)
-        self.vars_cons_num_dict = copy.copy(data.vars_cons_num_dict)
+        self.cons_list = data.constraints_list
         self.curr_var_idx = 0
 
         self._heuristic_most_cons()
+        # self._heuristic_smallest_field()
 
     def search_solutions(self):
         self.start_time = time.time()
@@ -31,6 +32,9 @@ class BackTracking:
             curr_var = self.vars_list[self.curr_var_idx]
             next_val = self._get_next_val(curr_var)
 
+            if curr_var == (1, 2) and next_val == 1:
+                xx = 1
+
             if next_val is None:
                 self._go_back(curr_var)
                 continue
@@ -39,8 +43,8 @@ class BackTracking:
             is_val_correct = self._check_cons(curr_var, next_val)
             if is_val_correct:
                 found = self._go_deeper(curr_var, next_val)
-                if found:
-                    return self.output
+                # if found:
+                #     return self.output
             else:
                 self.back_count += 1
         return self.output
@@ -52,7 +56,7 @@ class BackTracking:
 
     def _go_deeper(self, curr_var, corr_value):
         self.board_matrix[curr_var] = corr_value
-        if curr_var != (self.data.dimension - 1, self.data.dimension - 1):
+        if curr_var != self.vars_list[len(self.vars_list) - 1]:
             self.curr_var_idx += 1
             return False
         else:
@@ -90,20 +94,15 @@ class BackTracking:
         return True
 
     def _check_global_cons(self, var_to_check, value):
-        cons_with_var = [(x, y) for (x, y) in self.data.constraints_list if x == var_to_check or y == var_to_check]
+        cons_with_var = [(x, y) for (x, y) in self.cons_list if x == var_to_check or y == var_to_check]
         if len(cons_with_var) <= 0:
             return True
 
         for (first_cell, second_cell) in cons_with_var:
             first_cell_val = value if first_cell == var_to_check else self.board_matrix[first_cell]
             second_cell_val = value if second_cell == var_to_check else self.board_matrix[second_cell]
-
-            if first_cell_val == 0 or second_cell_val == 0:
-                return True
-
-            if first_cell_val >= second_cell_val:
+            if first_cell_val != 0 and second_cell_val != 0 and first_cell_val >= second_cell_val:
                 return False
-
         return True
 
     def _solution_found(self):
@@ -121,4 +120,15 @@ class BackTracking:
         self.vars_list.sort(key=self._cons_num, reverse=True)
 
     def _cons_num(self, var):
-        return self.vars_cons_num_dict[var]
+        cons_num = 0
+        for con in self.cons_list:
+            if var in con:
+                cons_num += 1
+        return cons_num
+
+    def _heuristic_smallest_field(self):
+        self.vars_list.sort(key=self._field_size)
+
+    def _field_size(self, var):
+        field = self.vars_dict[var]
+        return len(field)
